@@ -11,15 +11,25 @@ public class CardHandler {
     private List<String> PromptsCache;
     Random random = new Random();
 
-
-    public CardHandler() {}
+    public CardHandler() {
+        this.Players = new HashMap<>();
+    }
 
     public CardHandler(HashMap<String, PlayerDTO> players) {
         this.Players = players;
     }
 
     public void SetPlayers(HashMap<String, PlayerDTO> players) {
-        Players = players;
+        this.Players = players;
+    }
+
+    public List<String> GetPlayerList(){
+        Set<String> playerSet = this.Players.keySet();
+        return new ArrayList<>(playerSet);
+    }
+
+    public PlayerDTO GetPlayer(String playerName){
+        return this.Players.get(playerName);
     }
 
     public void AddPlayer(String playerID, PlayerDTO player) {
@@ -84,7 +94,7 @@ public class CardHandler {
         this.Players.put(playerID, data);
     }
 
-    private void RemoveWords(String playerID, List<String> words){
+    public void RemoveWords(String playerID, List<String> words){
         PlayerDTO data = Players.get(playerID);
         for(String word : words){
             data.Words().remove(word);

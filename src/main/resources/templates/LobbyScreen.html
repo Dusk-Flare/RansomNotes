@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lobby</title>
+</head>
+<body>
+<h1 align="center">Ransom Notes Online</h1>
+<p align="center">by Lanta</p>
+<hr>
+<div th:each="client : ${ClientNames}">
+    <p th:text="${client}"></p>
+</div>
+</body>
+</html>
