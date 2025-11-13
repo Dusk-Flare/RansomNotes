@@ -12,7 +12,6 @@ import java.util.*;
 @Controller
 public class GameController {
     private int Counter = 0;
-    private Dictionary<String, PlayerDTO> lobby;
     CardHandler GAME = new CardHandler();
 
     @GetMapping("/Login")
@@ -20,7 +19,7 @@ public class GameController {
         if (client == null) {
             String PlayerID = String.valueOf(Counter);
             Cookie cookie = new Cookie("Client", PlayerID);
-            GAME.AddPlayer(PlayerID, new PlayerDTO(0, null, null));
+            GAME.AddPlayer(PlayerID, new PlayerDTO("Random Name", 0, null, null));
             cookie.setPath("/");
             response.addCookie(cookie);
             Counter++;
@@ -31,7 +30,7 @@ public class GameController {
     @GetMapping("/LogOff")
     public String logout(HttpServletResponse response, @CookieValue(name = "Client", required = false) String client){
         if(client != null){
-            if(GAME.GetPlayerList().contains(client)){
+            if(GAME.GetPlayerIDs().contains(client)){
                 GAME.RemovePlayer(client);
             }
             Cookie cookie = new Cookie("Client", null);
@@ -44,10 +43,10 @@ public class GameController {
 
     @GetMapping("/GameLobby")
     public String gameLobby(Model model, @CookieValue(name="Client", required = false) String client){
-        if (client == null) return "redirect:/Login";
-        List<String> players = GAME.GetPlayerList();
+        if (client == null || GAME == null) return "redirect:/Login";
+        List<String> players = GAME.GetPlayerNames();
         List<String> playerText = new ArrayList<>(List.of("Lobby list:"));
-        for(String player : players){
+        for (String player : players) {
             playerText.add("Player " + player + " is in the Lobby");
         }
         model.addAttribute("ClientNames", playerText);
@@ -58,7 +57,7 @@ public class GameController {
     public String showGameHome(Model model, @CookieValue(name="Client", required = false) String client) {
         if (client == null) return "redirect:/Login";
         PlayerDTO playerData = GAME.GetPlayer(client);
-        model.addAttribute("ClientName", "You are client: " + client);
+        model.addAttribute("ClientName", "Your name is: <br>" + playerData.Name());
         model.addAttribute("ClientWords", "These are your words: <br>" + playerData.Words());
         model.addAttribute("ClientPrompts", "These are your prompts: <br>" + playerData.Prompt());
         return "GameHomePage";
@@ -67,10 +66,11 @@ public class GameController {
     @PostMapping("/GameHome")
     public String submitResponse(@RequestParam("response") String response,
                                @CookieValue(name="Client", required = false)  String client,
-                               @RequestParam(name = "nextPrompt", required = false) String nPromt){
+                               @RequestParam(name = "nextPrompt", required = false) String nextPrompt){
         if (client == null) return "redirect:/Login";
         String words = response.replaceAll("[^a-zA-Z0-9\\s]", "");
         List<String> wordsUsed = new ArrayList<>(Arrays.asList(words.split("\\s+")));
+        if(nextPrompt != null) GAME.RemovePrompt(client, nextPrompt);
         GAME.RemoveWords(client, wordsUsed);
         return "GameHomePage";
     }

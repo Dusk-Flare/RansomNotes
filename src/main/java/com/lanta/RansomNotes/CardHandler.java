@@ -7,40 +7,58 @@ public class CardHandler {
     private HashMap<String, PlayerDTO> Winners;
     private final String[] PROMPTS = new String[]{"Smile", "Happy", "Wonderful"};
     private final String[] WORDS = new String[]{"and", "to", "for"};
+    private boolean Running;
     private List<String> PromptsCache;
     Random random = new Random();
 
     public CardHandler() {
         this.Players = new HashMap<>();
+        this.Running = false;
     }
 
     public CardHandler(HashMap<String, PlayerDTO> players) {
         this.Players = players;
+        this.Running = false;
+    }
+
+    public boolean IsRunning(){
+        return this.Running;
     }
 
     public void SetPlayers(HashMap<String, PlayerDTO> players) {
         this.Players = players;
     }
 
-    public List<String> GetPlayerList(){
-        Set<String> playerSet = this.Players.keySet();
-        return new ArrayList<>(playerSet);
+    public List<String> GetPlayerNames(){
+        List<String> players = new ArrayList<>();
+        for(PlayerDTO playerData : this.Players.values()){
+            players.add(playerData.Name());
+        }
+        return players;
     }
 
-    public PlayerDTO GetPlayer(String playerName){
-        return this.Players.get(playerName);
+    public List<String> GetPlayerIDs(){
+        return List.of(Players.keySet().toArray(new String[0]));
+    }
+
+    public PlayerDTO GetPlayer(String playerId){
+        return this.Players.get(playerId);
     }
 
     public List<String> GetWinnersList(){
-        return new ArrayList<>(this.Winners.keySet());
+        List<String> winners = new ArrayList<>();
+        for(PlayerDTO playerData : this.Winners.values()){
+            winners.add(playerData.Name());
+        }
+        return winners;
     }
 
     public HashMap<String, PlayerDTO> GetWinners(){
         return this.Winners;
     }
 
-    public void AddPlayer(String playerID, PlayerDTO player) {
-        this.Players.put(playerID, player);
+    public void AddPlayer(String playerID, PlayerDTO playerData) {
+        this.Players.put(playerID, playerData);
     }
 
     public void RemovePlayer(String playerID) {
@@ -95,7 +113,7 @@ public class CardHandler {
         }
     }
 
-    private void RemovePrompt(String playerID, String prompt){
+    public void RemovePrompt(String playerID, String prompt){
         PlayerDTO data = Players.get(playerID);
         data.Prompt().remove(prompt);
         this.Players.put(playerID, data);
@@ -107,6 +125,12 @@ public class CardHandler {
             data.Words().remove(word);
         }
         this.Players.put(playerID, data);
+    }
+
+    public void StartGame(){
+        this.Running = true;
+        DistributePrompts();
+        DistributeWords();
     }
 
     public void EndGame(){
