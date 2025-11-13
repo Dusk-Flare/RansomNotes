@@ -4,10 +4,9 @@ import java.util.*;
 
 public class CardHandler {
     private HashMap<String, PlayerDTO> Players;
-    private HashMap<String, Integer> Wins;
-    private final String[] PROMPTS = new String[]{};
-    private final String[] WORDS = new String[]{};
-    private String winner;
+    private HashMap<String, PlayerDTO> Winners;
+    private final String[] PROMPTS = new String[]{"Smile", "Happy", "Wonderful"};
+    private final String[] WORDS = new String[]{"and", "to", "for"};
     private List<String> PromptsCache;
     Random random = new Random();
 
@@ -32,6 +31,14 @@ public class CardHandler {
         return this.Players.get(playerName);
     }
 
+    public List<String> GetWinnersList(){
+        return new ArrayList<>(this.Winners.keySet());
+    }
+
+    public HashMap<String, PlayerDTO> GetWinners(){
+        return this.Winners;
+    }
+
     public void AddPlayer(String playerID, PlayerDTO player) {
         this.Players.put(playerID, player);
     }
@@ -42,13 +49,14 @@ public class CardHandler {
 
     private void GeneratePrompts(){
         this.PromptsCache = new ArrayList<>(Arrays.asList(PROMPTS));
+        Collections.shuffle(this.PromptsCache);
     }
 
     public void DistributePrompts(){
         for(Map.Entry<String, PlayerDTO> player : Players.entrySet()){
-            Collections.shuffle(this.PromptsCache);
             PlayerDTO data = player.getValue();
             for(int i = 0; i <= 3; i++){
+                if(this.PromptsCache.isEmpty()) GeneratePrompts();
                 String prompt = this.PromptsCache.getLast();
                 data.Prompt().add(prompt);
                 PromptsCache.remove(prompt);
@@ -70,7 +78,6 @@ public class CardHandler {
 
     public void DrawPrompt(String playerID){
         if (this.PromptsCache.isEmpty()) GeneratePrompts();
-        Collections.shuffle(this.PromptsCache);
         PlayerDTO data = Players.get(playerID);
         String prompt = this.PromptsCache.getLast();
         data.Prompt().add(prompt);
@@ -102,15 +109,18 @@ public class CardHandler {
         this.Players.put(playerID, data);
     }
 
-    private String EndGame(){
-        String winner = "Draw";
-        int wincount = -1;
-        for(Map.Entry<String, Integer> WinCandidate : this.Wins.entrySet()){
-            if(WinCandidate.getValue() > wincount){
-                winner = WinCandidate.getKey();
-                wincount = WinCandidate.getValue();
+    public void EndGame(){
+        HashMap<String, PlayerDTO> winners = new HashMap<>();
+        int winCount = 0;
+        for(String player : Players.keySet()){
+            PlayerDTO data = Players.get(player);
+            if (data.Wins() == winCount) winners.put(player, data);
+            if (data.Wins() > winCount){
+                winCount = data.Wins();
+                winners = new HashMap<>();
+                winners.put(player, data);
             }
         }
-        return winner;
+        this.Winners = winners;
     }
 }

@@ -20,12 +20,26 @@ public class GameController {
         if (client == null) {
             String PlayerID = String.valueOf(Counter);
             Cookie cookie = new Cookie("Client", PlayerID);
-            GAME.AddPlayer(PlayerID, new PlayerDTO(null, null));
+            GAME.AddPlayer(PlayerID, new PlayerDTO(0, null, null));
             cookie.setPath("/");
             response.addCookie(cookie);
             Counter++;
         }
         return "redirect:/GameLobby";
+    }
+
+    @GetMapping("/LogOff")
+    public String logout(HttpServletResponse response, @CookieValue(name = "Client", required = false) String client){
+        if(client != null){
+            if(GAME.GetPlayerList().contains(client)){
+                GAME.RemovePlayer(client);
+            }
+            Cookie cookie = new Cookie("Client", null);
+            cookie.setMaxAge(0);
+            cookie.setPath("/");
+            response.addCookie(cookie);
+        }
+        return "LogOff";
     }
 
     @GetMapping("/GameLobby")
@@ -58,7 +72,6 @@ public class GameController {
         String words = response.replaceAll("[^a-zA-Z0-9\\s]", "");
         List<String> wordsUsed = new ArrayList<>(Arrays.asList(words.split("\\s+")));
         GAME.RemoveWords(client, wordsUsed);
-
         return "GameHomePage";
     }
 }
