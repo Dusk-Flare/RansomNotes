@@ -74,7 +74,7 @@ public class CardHandler {
         for(Map.Entry<String, PlayerDTO> player : Players.entrySet()){
             PlayerDTO data = player.getValue();
             for(int i = 0; i <= 3; i++){
-                if(this.PromptsCache.isEmpty()) GeneratePrompts();
+                if((this.PromptsCache == null) || this.PromptsCache.isEmpty()) GeneratePrompts();
                 String prompt = this.PromptsCache.getLast();
                 data.Prompt().add(prompt);
                 PromptsCache.remove(prompt);
@@ -95,7 +95,7 @@ public class CardHandler {
     }
 
     public void DrawPrompt(String playerID){
-        if (this.PromptsCache.isEmpty()) GeneratePrompts();
+        if ((this.PromptsCache == null) || this.PromptsCache.isEmpty()) GeneratePrompts();
         PlayerDTO data = Players.get(playerID);
         String prompt = this.PromptsCache.getLast();
         data.Prompt().add(prompt);

@@ -3,6 +3,7 @@ package com.lanta.RansomNotes.controllers;
 import com.lanta.RansomNotes.CardHandler;
 import com.lanta.RansomNotes.PlayerDTO;
 import jakarta.servlet.http.*;
+import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class GameController {
         if (client == null) {
             String PlayerID = String.valueOf(Counter);
             Cookie cookie = new Cookie("Client", PlayerID);
-            GAME.AddPlayer(PlayerID, new PlayerDTO("Random Name", 0, null, null));
+            GAME.AddPlayer(PlayerID, new PlayerDTO("Random Name", 0, new ArrayList<>(), new ArrayList<>()));
             cookie.setPath("/");
             response.addCookie(cookie);
             Counter++;
@@ -73,5 +74,15 @@ public class GameController {
         if(nextPrompt != null) GAME.RemovePrompt(client, nextPrompt);
         GAME.RemoveWords(client, wordsUsed);
         return "GameHomePage";
+    }
+
+    @GetMapping("/isStarted")
+    public ResponseEntity<Boolean> hasGameStarted(){
+        return ResponseEntity.ok(GAME.IsRunning());
+    }
+
+    @GetMapping("/start")
+    public void startGame(){
+        GAME.StartGame();
     }
 }
