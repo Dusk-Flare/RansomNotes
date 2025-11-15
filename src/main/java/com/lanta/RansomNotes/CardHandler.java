@@ -8,7 +8,7 @@ public class CardHandler {
     private final String[] PROMPTS = new String[]{"Smile", "Happy", "Wonderful"};
     private final String[] WORDS = new String[]{"and", "to", "for"};
     private final List<String> ReadyPlayers = new ArrayList<>();
-    private final List<String> VoteEndGame = new ArrayList<>();
+    private final List<String> VotersEndGame = new ArrayList<>();
     private List<String> RoundCandidates = new ArrayList<>();
     private List<String> PromptsCache = new ArrayList<>();
     private String RoundMaster;
@@ -39,7 +39,11 @@ public class CardHandler {
     }
 
     public int GetEndVote(){
-        return this.VoteEndGame.size();
+        return this.VotersEndGame.size();
+    }
+
+    public List<String> GetEndVoters(){
+        return this.VotersEndGame;
     }
 
     public void SetPlayers(HashMap<String, PlayerDTO> players) {
@@ -51,7 +55,7 @@ public class CardHandler {
     }
 
     public void VoteEndGame(String playerID) {
-        if(!this.VoteEndGame.contains(playerID)) this.VoteEndGame.add(playerID);
+        if(!this.VotersEndGame.contains(playerID)) this.VotersEndGame.add(playerID);
     }
 
     public void UnReadyPlayer(String playerID) {
@@ -59,7 +63,7 @@ public class CardHandler {
     }
 
     public void UnVoteEndGame(String playerID) {
-        this.VoteEndGame.remove(playerID);
+        this.VotersEndGame.remove(playerID);
     }
 
     public void UnReadyPlayers() {
@@ -196,7 +200,7 @@ public class CardHandler {
 
     public void AttemptEndGame(){
         for(String player : Players.keySet()){
-            if(!this.ReadyPlayers.contains(player)) return;
+            if(!this.VotersEndGame.contains(player)) return;
         }
         EndGame();
     }
@@ -214,5 +218,6 @@ public class CardHandler {
             }
         }
         this.Winners = winners;
+        this.Running = false;
     }
 }

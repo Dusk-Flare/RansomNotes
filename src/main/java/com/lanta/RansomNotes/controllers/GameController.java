@@ -80,7 +80,7 @@ public class GameController {
     }
 
     @GetMapping("/end")
-    public ResponseEntity<Boolean> hasGameEnded(@CookieValue(name="Client", required = false) String client){
+    public ResponseEntity<Boolean> hasGameEnded(@CookieValue(name="Client") String client){
         GAME.VoteEndGame(client);
         GAME.AttemptEndGame();
         return ResponseEntity.ok(!GAME.IsRunning());

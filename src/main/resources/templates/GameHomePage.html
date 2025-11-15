@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Game Screen</title>
+    <script th:src="@{/Js/gamePage.js}" defer></script>
 </head>
 <body>
 <h1 align="center">Ransom Notes Online</h1>
@@ -16,5 +17,6 @@
 <div align="center" th:each="word : ${ClientWords}">
     <p th:utext="${word}"></p>
 </div>
+<button id="gameEnd">EndGame</button>
 </body>
 </html>
