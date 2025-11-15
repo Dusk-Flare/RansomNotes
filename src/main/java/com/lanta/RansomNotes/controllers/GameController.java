@@ -65,15 +65,13 @@ public class GameController {
     }
 
     @PostMapping("/GameHome")
-    public String submitResponse(@RequestParam("response") String response,
-                               @CookieValue(name="Client", required = false)  String client,
+    public void submitResponse(@RequestParam("response") String response,
+                               @RequestParam("client") String client,
                                @RequestParam(name = "nextPrompt", required = false) String nextPrompt){
-        if (client == null) return "redirect:/Login";
         String words = response.replaceAll("[^a-zA-Z0-9\\s]", "");
         List<String> wordsUsed = new ArrayList<>(Arrays.asList(words.split("\\s+")));
         if(nextPrompt != null) GAME.RemovePrompt(client, nextPrompt);
         GAME.RemoveWords(client, wordsUsed);
-        return "GameHomePage";
     }
 
     @GetMapping("/isStarted")
@@ -81,8 +79,21 @@ public class GameController {
         return ResponseEntity.ok(GAME.IsRunning());
     }
 
+    @GetMapping("/end")
+    public ResponseEntity<Boolean> hasGameEnded(@CookieValue(name="Client", required = false) String client){
+        GAME.VoteEndGame(client);
+        GAME.AttemptEndGame();
+        return ResponseEntity.ok(!GAME.IsRunning());
+    }
+
     @GetMapping("/start")
     public void startGame(){
         GAME.StartGame();
+    }
+
+    @GetMapping("/GameOver")
+    public String gameOver(Model model, @CookieValue(name="Client", required = false) String client){
+        model.addAttribute("Winners", GAME.GetWinnersList());
+        return "GameOver";
     }
 }

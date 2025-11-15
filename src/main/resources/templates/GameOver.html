@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Game Over</title>
+</head>
+<body>
+<h1 align="center">Ransom Notes Online</h1>
+<p align="center" th:utext="${ClientName}">by Lanta</p>
+
+<hr>
+<div align="center" th:each="winner : ${Winners}">
+    <p th:utext="${winner}"></p>
+</div>
+<button id="button">EndGame</button>
+</body>
+</html>

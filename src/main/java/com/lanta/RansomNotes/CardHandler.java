@@ -7,8 +7,13 @@ public class CardHandler {
     private HashMap<String, PlayerDTO> Winners;
     private final String[] PROMPTS = new String[]{"Smile", "Happy", "Wonderful"};
     private final String[] WORDS = new String[]{"and", "to", "for"};
+    private final List<String> ReadyPlayers = new ArrayList<>();
+    private final List<String> VoteEndGame = new ArrayList<>();
+    private List<String> RoundCandidates = new ArrayList<>();
+    private List<String> PromptsCache = new ArrayList<>();
+    private String RoundMaster;
     private boolean Running;
-    private List<String> PromptsCache;
+
     Random random = new Random();
 
     public CardHandler() {
@@ -25,8 +30,40 @@ public class CardHandler {
         return this.Running;
     }
 
+    public String GetRoundMaster(){
+        return this.RoundMaster;
+    }
+
+    public int GetPlayerCount(){
+        return this.Players.size();
+    }
+
+    public int GetEndVote(){
+        return this.VoteEndGame.size();
+    }
+
     public void SetPlayers(HashMap<String, PlayerDTO> players) {
         this.Players = players;
+    }
+
+    public void ReadyPlayer(String playerID) {
+        if(!this.ReadyPlayers.contains(playerID)) this.ReadyPlayers.add(playerID);
+    }
+
+    public void VoteEndGame(String playerID) {
+        if(!this.VoteEndGame.contains(playerID)) this.VoteEndGame.add(playerID);
+    }
+
+    public void UnReadyPlayer(String playerID) {
+        this.ReadyPlayers.remove(playerID);
+    }
+
+    public void UnVoteEndGame(String playerID) {
+        this.VoteEndGame.remove(playerID);
+    }
+
+    public void UnReadyPlayers() {
+        this.ReadyPlayers.clear();
     }
 
     public List<String> GetPlayerNames(){
@@ -70,11 +107,22 @@ public class CardHandler {
         Collections.shuffle(this.PromptsCache);
     }
 
+    private void GenerateCandidates(){
+        this.RoundCandidates = new ArrayList<>(Players.keySet());
+        Collections.shuffle(this.RoundCandidates);
+    }
+
+    public void SelectRoundMaster(){
+        if (this.RoundCandidates.isEmpty()) GenerateCandidates();
+        this.RoundMaster = this.RoundCandidates.getLast();
+        this.RoundCandidates.remove(this.RoundMaster);
+    }
+
     public void DistributePrompts(){
         for(Map.Entry<String, PlayerDTO> player : Players.entrySet()){
             PlayerDTO data = player.getValue();
             for(int i = 0; i <= 3; i++){
-                if((this.PromptsCache == null) || this.PromptsCache.isEmpty()) GeneratePrompts();
+                if(this.PromptsCache.isEmpty()) GeneratePrompts();
                 String prompt = this.PromptsCache.getLast();
                 data.Prompt().add(prompt);
                 PromptsCache.remove(prompt);
@@ -95,7 +143,7 @@ public class CardHandler {
     }
 
     public void DrawPrompt(String playerID){
-        if ((this.PromptsCache == null) || this.PromptsCache.isEmpty()) GeneratePrompts();
+        if (this.PromptsCache.isEmpty()) GeneratePrompts();
         PlayerDTO data = Players.get(playerID);
         String prompt = this.PromptsCache.getLast();
         data.Prompt().add(prompt);
@@ -128,9 +176,29 @@ public class CardHandler {
     }
 
     public void StartGame(){
+        if(this.Running) return;
         this.Running = true;
+        SelectRoundMaster();
         DistributePrompts();
         DistributeWords();
+    }
+
+    public Boolean NextRound(){
+        for(String player : Players.keySet()){
+            if(!this.ReadyPlayers.contains(player)) return false;
+        }
+        UnReadyPlayers();
+        DrawPrompt(this.RoundMaster);
+        DrawWords();
+        SelectRoundMaster();
+        return true;
+    }
+
+    public void AttemptEndGame(){
+        for(String player : Players.keySet()){
+            if(!this.ReadyPlayers.contains(player)) return;
+        }
+        EndGame();
     }
 
     public void EndGame(){
