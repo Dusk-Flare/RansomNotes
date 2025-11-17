@@ -1,5 +1,5 @@
 const endButton = document.getElementById("gameEnd")
-async function attemptEnd() {
+async function attemptEnd(){
     try {
         const response = await fetch('/end', {
             method: 'GET',

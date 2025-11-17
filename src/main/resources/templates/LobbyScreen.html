@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Game Lobby</title>
-    <script th:src="@{/Js/lobby.js}"></script>
+    <script th:src="@{/Js/lobby.js}" defer></script>
 </head>
 <body>
 <h1 align="center">Ransom Notes Online</h1>
@@ -12,5 +12,6 @@
 <div th:each="client : ${ClientNames}">
     <p th:text="${client}"></p>
 </div>
+<button id="gameStart">Start Game</button>
 </body>
 </html>

@@ -28,7 +28,7 @@ public class GameController {
         return "redirect:/GameLobby";
     }
 
-    @GetMapping("/LogOff")
+    @GetMapping("/Logout")
     public String logout(HttpServletResponse response, @CookieValue(name = "Client", required = false) String client){
         if(client != null){
             if(GAME.GetPlayerIDs().contains(client)){
@@ -87,8 +87,10 @@ public class GameController {
     }
 
     @GetMapping("/start")
-    public void startGame(){
-        GAME.StartGame();
+    public ResponseEntity<Boolean> startGame(@CookieValue(name="Client") String client){
+        GAME.VoteStartGame(client);
+        GAME.AttemptStartGame();
+        return ResponseEntity.ok(GAME.IsRunning());
     }
 
     @GetMapping("/GameOver")
