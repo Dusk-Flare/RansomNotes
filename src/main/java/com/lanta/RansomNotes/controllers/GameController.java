@@ -31,9 +31,7 @@ public class GameController {
     @GetMapping("/Logout")
     public String logout(HttpServletResponse response, @CookieValue(name = "Client", required = false) String client){
         if(client != null){
-            if(GAME.GetPlayerIDs().contains(client)){
-                GAME.RemovePlayer(client);
-            }
+            if(GAME.GetPlayerIDs().contains(client)) GAME.RemovePlayer(client);
             Cookie cookie = new Cookie("Client", null);
             cookie.setMaxAge(0);
             cookie.setPath("/");
@@ -55,7 +53,7 @@ public class GameController {
     }
 
     @GetMapping("/GameHome")
-    public String showGameHome(Model model, @CookieValue(name="Client", required = false) String client) {
+    public String showGameHome(Model model, HttpServletResponse response, @CookieValue(name="Client", required = false) String client) {
         if (client == null) return "redirect:/Login";
         PlayerDTO playerData = GAME.GetPlayer(client);
         model.addAttribute("ClientName", "Your name is: <br>" + playerData.Name());
@@ -94,7 +92,14 @@ public class GameController {
     }
 
     @GetMapping("/GameOver")
-    public String gameOver(Model model, @CookieValue(name="Client", required = false) String client){
+    public String gameOver(Model model, HttpServletResponse response, @CookieValue(name = "Client", required = false) String client){
+        if(client != null){
+            if(GAME.GetPlayerIDs().contains(client)) GAME.RemovePlayer(client);
+            Cookie cookie = new Cookie("Client", null);
+            cookie.setMaxAge(0);
+            cookie.setPath("/");
+            response.addCookie(cookie);
+        }
         model.addAttribute("Winners", GAME.GetWinnersList());
         return "GameOver";
     }
